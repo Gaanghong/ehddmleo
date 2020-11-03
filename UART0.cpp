@@ -1,0 +1,45 @@
+#include "UART0.h"
+
+void UART0_init(void){
+  UBRR0H = 0x00;
+  UBRR0L = 207;
+
+  UCSR0A |= _BV(U2X0);
+// 비동기, 8비트 데이터, 패리티 없음, 1비트 정지 비트 모드
+
+  UCSR0C |= 0x06;
+
+  UCSR0B |= _BV(RXEN0);
+  UCSR0B |= _BV(TXEN0);
+
+ 
+}
+
+void UART0_write(uint8_t data){
+  while( !(UCSR0A & (1<< UDRE0)) );
+  UDR0 = data;
+}
+
+uint8_t UART0_read(void){
+  while( !(UCSR0A & (1<< RXC0)) );
+  return UDR0;
+}
+
+uint8_t UART0_print(char *str){
+  while(*str)
+  UART0_write(*str++);
+}
+
+void UART0_print(int no, int radix = 10){
+  char buffer[sizeof(int) * 8 + 1];
+  itoa(no, buffer, radix);
+  UART0_print(buffer);
+  
+}
+
+void UART0_print(long no, int radix = 10){
+  char buffer[sizeof(long) * 8 +1];
+  ltoa(no, buffer, radix);
+  UART0_print(buffer);
+  
+}
